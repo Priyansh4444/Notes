@@ -7,7 +7,7 @@ import { SITE } from '@/consts'
 import Layout from '@/layouts/Layout.astro'
 import { getRecentPosts } from '@/lib/data-utils'
 
-const blog = await getRecentPosts(SITE.featuredPostCount)
+const notes = await getRecentPosts(SITE.featuredPostCount)
 ---
 
 <Layout>
@@ -40,10 +40,11 @@ const blog = await getRecentPosts(SITE.featuredPostCount)
             underline>shadcn/ui</Link
           >.
         </p>
-        <p class="text-sm italic">
+        <p class="text-sm">
           Thanks to <Link
             href="https://github.com/jktrn/astro-erudite"
             underline
+            class="italic"
             external>@enscribe</Link
           > for the template 💖
         </p>
@@ -54,7 +55,7 @@ const blog = await getRecentPosts(SITE.featuredPostCount)
     <h2 class="text-2xl font-medium">Latest posts</h2>
     <ul class="flex flex-col gap-y-4">
       {
-        blog.map((post) => (
+        notes.map((post) => (
           <li>
             <BlogCard entry={post} />
           </li>
@@ -63,7 +64,7 @@ const blog = await getRecentPosts(SITE.featuredPostCount)
     </ul>
     <div class="flex justify-center">
       <Link
-        href="/blog"
+        href="/notes"
         class={buttonVariants({ variant: 'ghost' }) + ' group'}
       >
         See all posts <span
