@@ -2,90 +2,130 @@
 title: 'Evolution of Servers'
 description: 'The evolution of servers and how we are thinking of them today.'
 date: 2025-03-31
-tags: ['v0.1.2', 'servers', 'serverless', 'cloudflare', 'edge', 'fluid-compute']
+tags: ['v1.0.0', 'servers', 'serverless', 'cloudflare', 'edge', 'fluid-compute']
 image: './banner.webp'
 authors: ['pronsh']
 ---
 
+import IOBounds from './custom-tooltip.tsx'
+
+The way we host and run applications has changed dramatically over the years. Let's see how we evolved from traditional physical machines to the latest concepts in edge and fluid computing.
+
 ## Dedicated Servers
 
-- Physical machines which were actual computers which run your hosted application. Still used today and could be used with virtualization to run multiple applications on the same machine.
-- They are always on, handle traffic in parallel and needs to be scaled manually.
-- Operate on a centralized model where the server is the single point of failure, which is usually good when since you have more control and the data management is streamlined.
-- This also provides, consistent performance, security and reliability since you know exactly how the data is being handled and where it is being stored.
-- Uptime depends on you, along with things like power supply, connection speed and things like that.
-- This being said you dont really have control over performance.
-- Complex deployment, scaling and management which potentially delays the time-to-market for critical applications.
+- **Definition:** Physical machines which were actual computers which run your hosted application. Still used today and could be used with virtualization to run multiple applications on the same machine.
+- **Operation:** They are always on, handle traffic in parallel, and need to be scaled manually.
+- **Model:** Operate on a centralized model where the server can be a single point of failure. This can be seen as good as you have more control, and data management is streamlined.
+- **Benefits:** This provides consistent performance, security, and reliability since you know exactly how the data is being handled and where it is being stored.
+- **Management:** Uptime, power supply, connection speed, and similar factors depend on your management.
+- **Limitations:** Optimizing performance beyond the hardware's capabilities requires manual scaling (upgrading or adding more hardware). Complex deployment, scaling, and management can potentially delay the time-to-market for critical applications.
+- **Cost:** High upfront costs, maintenance, and management overhead. You are paying for the hardware and the time it takes to manage it.
 
 ## Edge Computing and CDNs
 
-To tackle the problem of latency which could occur if the server is far away from the client (which became common with the evolution of the internet), we started to use CDNs (Content Delivery Networks) & Edge Computing which are a network of servers/distributed computing paradigm that are distributed across the globe. This allows us to cache content closer to the user and reduce latency.
+To tackle the problem of latency, which occurs when the server is geographically far from the client (a common issue as the internet grew), Content Delivery Networks (CDNs) & Edge Computing emerged. These involve a network of servers or a distributed computing paradigm spread across the globe. This allows content to be cached closer to the user, significantly reducing latency.
 
-> Traffic patters are also something to keep in mind here since if you have a lot of trafic during the day from one region, but not from another the uptime, or the actual amount your server needs to be used is also something which has to be managed which is quite complicated to do if you are trying to cut on costs/or when you want to scale with a centralized dedicated server.
+> Traffic patterns are also something to keep in mind here. If you have high traffic during the day from one region but not another, managing server uptime efficiently becomes complicated with things like timezones, especially when trying to cut costs or scale with a centralized dedicated server.
 
-This started to make applications feel more _responsive_ and _faster_ since the data is being served from a server.
-Since this is decentralized and there are multiple servers, this makes the problem of scaling also easier along with reducing bandwith comsumed by transfering to distant servers which are centralized.
-Cloudflare is a good example of being a catalyst to this change making it easier with Cloudflare Pages for static hosting and Cloudflare Workers for serverless functions.
+This distributed approach started to make applications feel more _responsive_ and _faster_ since data is served from a geographically nearby server.
+Being decentralized with multiple servers also simplifies scaling and reduces bandwidth consumed by transferring data to distant centralized servers.
+Cloudflare is a good example of a catalyst for this change, making edge deployment easier with offerings like Cloudflare Pages and Cloudflare Workers.
 
 ### Cloudflare Pages
 
-- Improved performance and reduced latency by serving static assets from the nearest edge location to the user.
-- Automatic scaling and load balancing across multiple edge locations, ensuring high availability and reliability.
-- Built-in security features, such as DDoS protection and Web Application Firewall (WAF), to safeguard applications from threats and also a free SSL certificate (Secure Sockets Layer) to encrypt data in transit.
-- Built for static sites, so hard to use with dynamic applications.
-- Despite the limitations, JAMStack is still supported (React, Next.js, Gatsby, Vue, Hugo, and Jekyll)
+- **Performance:** Improved performance and reduced latency by serving static assets from the nearest edge location to the user.
+- **Scalability & Reliability:** Automatic scaling and load balancing across multiple edge locations ensure high availability and reliability.
+- **Security:** Built-in security features, such as DDoS protection, Web Application Firewall (WAF), and free SSL certificates (Secure Sockets Layer) to encrypt data in transit, safeguard applications from threads.
+- **Use Case:** Primarily built for static sites, making it harder to use directly for highly dynamic applications.
+- **Framework Support:** Despite limitations for dynamic content, JAMStack frameworks (React, Next.js, Gatsby, Vue, Hugo, Jekyll) are well-supported.
 
-### Serverless Functions/Cloudflare Workers
+## Serverless Computing
 
-Serverless is a bad name, its more like server - less, or lazyservers.
+The term "Serverless" can be misleading; it's perhaps better described as "server-less" management or even "lazy servers".
 
-- Serverless functions are event-driven, meaning they can be triggered by specific events (like HTTP requests) and automatically scale based on demand.
-- No need to manage servers or infrastructure, allowing developers to focus on writing code and building applications.
-- Stateless, state needs to be stored in a databse or other storage solution.
-- Die when not being used, so lazy
-- Each Instance can only serve one user at a time though:- user gets a compute node/dedicated Virtual Machine (VM) for the duration of the request.
-  - Where is the concurrency handled in the VM?
-  - in dedicated servers, the server is handling the concurrency, but in serverless functions, Multiple VMs rather than threads are used to handle concurrency.
-  - You arent blocking and waiting for a response but rather instantly spinning up a new VM for each request even if the VM is on the cusp of finishing (for traditional serverless)
-  - This was solved by developers trying cache requests, increasing the time for requests to resolve for better ux and performance as well.
-- This model is really really good for short-lived tasks with low latency and short response times.
-- Long lived response which take time arent good cuz you are spinning up so many machines and wasting resources.
+- **Event-Driven & Scalable:** Serverless functions are event-driven (e.g., triggered by HTTP requests) and automatically scale based on demand.
+- **Managed Infrastructure:** No need to manage underlying servers or infrastructure, allowing developers to focus solely on writing code.
+- **Statelessness:** Functions are typically stateless; persistent state needs to be stored externally in a database or other storage solution.
+- **Lifecycle:** Instances "die" or spin down when not actively used, hence the "lazy" aspect.
+- **Concurrency Model:**
+  - Each instance typically serves one request at a time. A new request often gets a new compute node/dedicated Virtual Machine (VM) for its duration.
+  - How is concurrency handled? While dedicated servers handle concurrency using threads within a single machine, traditional serverless functions often achieve concurrency by spinning up multiple VMs—one for each concurrent request.
+  - You aren't blocking and waiting for a response from one instance; instead, a new VM is spun up for each concurrent request, even if an existing VM is about to finish.
+  - To mitigate issues like cold starts (the delay in spinning up a new VM) and improve user experience, developers implemented strategies like caching and techniques to keep function instances "warm".
+- **Ideal Use Cases:** This model excels at short-lived tasks requiring low latency and quick response times.
+- **Limitations:** Long-lived requests aren't ideal, as they can lead to inefficient resource use (keeping potentially many VMs active). The "cold start" problem can also impact the performance of infrequently used functions.
 
-So the problem is what if one lambda could do multiple requests like the dedicated servers, this also might solve the problem of things like cold-starts which is the time it takes to spin up a new VM and start serving requests.
+<details>
+  <summary>A bit more into the Concurrency Model on Serverless</summary>
 
-[How AWS deals with Lambda functions](https://youtu.be/156FSMbyMPQ?si=9cPaC3JFAMjNO8rR&t=840)
+This model describes the common approach to handling requests in many serverless platforms.
 
-> This whole note is inspired by this video HUGE shoutout to [@theo](https://twitter.com/theo) for his nerdy deep dives!!
+**Core Concurrency Model:**
+
+- **One Request per Instance:** Typically, each function instance (which might be a container or a dedicated micro-Virtual Machine/VM) serves only **one user request at a time**. A specific instance is allocated for the duration of that single request.
+- **Concurrency via Instance Scaling:** Unlike dedicated servers that often use multi-threading within a single machine to handle concurrent requests, traditional serverless platforms achieve concurrency primarily by **scaling the number of instances**.
+  - If multiple requests arrive concurrently, the platform automatically spins up multiple, separate instances – essentially one VM per concurrent request.
+- **No Blocking/Waiting:** The system doesn't typically block and wait for an existing instance to finish before handling a new request. It favors **immediately spinning up a new VM** for the new request, even if another VM is about to complete its task.
+
+**Implications and Challenges:**
+
+- **Cold Starts:** A significant challenge is the "cold start" – the delay incurred when a new VM must be initialized and started before it can process a request. This impacts the performance of infrequently used functions or during sudden traffic spikes.
+- **Resource Usage for Long Tasks:** This model can be inefficient for long-lived requests. Since each concurrent long request might occupy its own dedicated VM, it can lead to **spinning up many machines and potentially wasting resources** while they run.
+- **Developer Mitigations:** To improve user experience and performance, developers implement strategies like:
+  - **Caching** responses.
+  - Techniques to keep function instances **"warm"** (ready to serve requests without a cold start).
+  - Sometimes accepting slightly longer response times to manage resources.
+
+**Ideal Use Cases & Limitations:**
+
+- **Best Fit:** Excels at **short-lived tasks** requiring low latency and quick, independent responses.
+- **Less Ideal For:** **Long-running processes** due to potential resource inefficiency and the cost associated with keeping many instances active.
+
+**The Forward-Looking Question:**
+
+- The limitations of this model lead to the question: **What if a single serverless function/lambda instance could handle multiple requests concurrently**, similar to dedicated servers? This approach could potentially mitigate cold starts (as fewer instances need starting) and improve overall resource utilization.
+  [How AWS deals with Lambda functions](https://youtu.be/156FSMbyMPQ?si=9cPaC3JFAMjNO8rR&t=840)
+  > This whole note is inspired by this video HUGE shoutout to [@theo](https://twitter.com/theo) for his nerdy deep dives!!
+
+</details>
 
 ## Fluid Computing
 
-Fluid computing takes advantage of dedicated servers and serverless functions to create a hybrid model by making sure that resources are fully used rather than making a new VM when needed, you are multithreading on the VM along with making sure that you are only spinning up a new VM when you absolutely need to, to make sure that it is cost effective! "in function concurrency"
+![Fluid Computing](image.avif)
 
-There are moments in concurrency & asynchronous code where your server is just not doing anything and this is a huge plus since networking requests aren't as fast as like other tasks and so this approach is quite nice of taking advantage of this new model of fluid compute.
+Fluid computing aims to blend the benefits of dedicated servers (resource utilization) and serverless functions (scalability, managed infrastructure) into a hybrid model. The key idea is **optimizing concurrency**—making sure resources are fully utilized rather than spinning up a new VM for every single request unless absolutely necessary. This involves enabling "in-function concurrency" or multithreading within a single function instance.
 
-## Cloudflare Workers
+- **Efficiency:** There are moments in asynchronous code execution (like waiting for network requests) where a server isn't actively processing. Fluid computing takes advantage of this downtime within a single instance to handle other requests, making it more cost-effective.
+- **Optimized Concurrency:** This allows a single lambda/function instance to handle multiple concurrent invocations. This is a departure from the traditional serverless model where each invocation often gets its own isolated instance. Optimized concurrency leads to more efficient use of compute resources and can reduce idle time, especially for I/O-bound tasks (uses concurrecy to improve efficiency since its usually waiting during input/output or connecting with db and stuff) (common in AI applications waiting for external data).
+
+- **Complex State Management:** Unfortunately allowing multiple invocations within the same process requires careful consideration of potential issues related to shared global state and request isolation.
+
+> "Traditional Serverless wastes idle time. It fails to efficiently utilize available resources during periods of inactivity."
+
+Fluid compute models often aim to bill based on actual CPU time used, rather than billing for the entire time an instance is active, including idle time. Techniques like pre-warmed instances (in rust btw 🦀) and bytecode caching further reduce cold starts, making these models suitable for demanding applications like AI.
+Fluid compute models often support dense global compute and multi-region failover.
+
+[Amazing Example of Fluid Compute in Action](https://fluid0.vercel.app/)
+
+### Platforms Embracing Fluid Concepts
 
 The downtime mentioned before is also still chipping into your cost though, yes you can now parellelize during down time to effectively reduce that cost, but you are still being charged for it no matter how long it is!
-
-Cloudflare workers have a really interesting approach to this idea where, they are using v8 isolation which is a lightweight way to run multiple instances of the same code in parallel, but in a single VM and the benefit of v8 isolation (just like how our browsers have tabs running their own js in each tab) is that the v8 isolation lets you spin up more compute during CPU downtime, therefore you are just being billed on CPU time on cloudflare!
-This code runs at the edge, meaning it can intercept and modify HTTP requests and responses in real-time, before they even reach the origin server. Workers are written in JavaScript, adhering to the service workers API, and are executed using the highly efficient Chrome V8 engine, which ensures rapid startup times and overall excellent performance.  
-By leveraging V8 isolates, which are lightweight execution environments, Workers can start up very quickly, largely eliminating the delays that can occur when a serverless function is invoked for the first time after a period of inactivity.
-Built by the language of the web, for the web, Battle-tested and most scrutinized engine sandbox, familiarity for webdevs (and on edge like a reverse proxy) it understands webstandards and takes advatnage of js v8 so makes sense (especially since it was born really early on in the serverless movement).
-distributed, edge-centric approach to web hosting and computation
-Fluid compute also does this now, rather than spending on idle time you are spending on actual CPU time
-they used pre-warmed instances to reduce cold starts, bytecode caching in rust :3, was made for ai
-fluid compute models often support dense global compute and multi-region failover
-"Traditional Serverless wastes idle time. It fails to efficiently utilize available resources during periods of inactivity."
-[Amazing Example](https://fluid0.vercel.app/)
 
 A central and defining concept within the fluid compute paradigm is optimized concurrency. This refers to the capability of a single function instance to handle multiple concurrent invocations simultaneously. This is a departure from the traditional serverless model where each invocation typically spins up its own isolated instance. Optimized concurrency leads to more efficient utilization of underlying compute resources and can significantly reduce idle time, especially for input/output (I/O) bound tasks that are frequently encountered in AI applications, where functions might spend a significant portion of their execution time waiting for responses from external services or data sources.
 Allowing multiple invocations to share the same underlying process requires careful consideration of potential issues related to the sharing of global state and the isolation of individual requests.
 
-I believe deno deploy also has a concept similar to only paying depending on CPU usage time, but unsure!
-Google Cloud Run also had this its just that vercel was the one that caught my eye
-Google Cloud Run serverless depends on the developer turning their programs into OCI-compiliant containers/Docker images to something like GCR (Google Cloud Registry) -> they get parallelized into stateless computers
-gRPC for facilitating high-performance remote procedure calls
-supposedly harder for dx and preventing cold starts, but also has scale down to zero which is nice
+![Vercel Fluid Compute](Fluid.png)
+
+- **Cloudflare Workers:** Offer an interesting approach using **V8 isolates**.
+  - V8 isolates (similar to how browser tabs isolate JavaScript environments) are a lightweight way to run multiple instances of code in parallel securely (since v8 is one of the most battle-tested and most scrutinized engine sandbox ) and in parallel within a single process/VM.
+  - They are really good at dealing with issues like cold-starts since they are so lightweight, and also idle time is reduced because of JavaScript's eventloop being designed neatly to handle async code and I/O bound tasks.
+  - This allows Workers to handle significant concurrency within one instance and spin up new compute capacity very quickly during CPU downtime.
+  - Crucially, this model allows Cloudflare to bill primarily based on **CPU time** used, not wall-clock time, avoiding charges for idle time within a request.
+  - Workers run at the edge(reverse-proxy like exist before intercepting the server kinda like cache), intercepting and modifying HTTP requests/responses in real-time. They are written in JavaScript (using the Service Workers API) and executed on the efficient Chrome V8 engine, benefiting from its battle-tested sandbox and familiarity for web developers. Cloudflare's early adoption positioned Workers well within the serverless evolution.
+- **Vercel Fluid:** Explicitly markets a "Fluid Compute" model aimed at optimized concurrency and reduced idle time, particularly targeting AI workloads.
+- **Google Cloud Run:** Allows developers to deploy containerized applications (OCI-compliant Docker images) and deploy to the GCR (Google Cloud Registry) which are stateless containers. It supports concurrent requests per container instance and offers a scale-to-zero capability. Billing can be based on CPU allocation and request processing time. It uses technologies like gRPC for efficient communication but might involve a more complex developer experience related to containerization.
+- **AWS Lambda:** While traditionally following the one-request-per-instance model, AWS has also introduced features and configuration options to influence concurrency and reduce cold starts (like Provisioned Concurrency).
+- **Deno Deploy:** Also operates on V8 isolates I believe and aims for efficient, edge-based execution with billing potentially tied closer to actual usage.
 
 ## Server Architecture Comparison
 
