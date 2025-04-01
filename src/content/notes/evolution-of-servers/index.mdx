@@ -2,7 +2,7 @@
 title: 'Evolution of Servers'
 description: 'The evolution of servers and how we are thinking of them today.'
 date: 2025-03-31
-tags: ['v0.1.0', 'servers', 'serverless', 'cloudflare', 'edge', 'fluid-compute']
+tags: ['v0.1.2', 'servers', 'serverless', 'cloudflare', 'edge', 'fluid-compute']
 image: './banner.webp'
 authors: ['pronsh']
 ---
@@ -70,7 +70,7 @@ The downtime mentioned before is also still chipping into your cost though, yes 
 Cloudflare workers have a really interesting approach to this idea where, they are using v8 isolation which is a lightweight way to run multiple instances of the same code in parallel, but in a single VM and the benefit of v8 isolation (just like how our browsers have tabs running their own js in each tab) is that the v8 isolation lets you spin up more compute during CPU downtime, therefore you are just being billed on CPU time on cloudflare!
 This code runs at the edge, meaning it can intercept and modify HTTP requests and responses in real-time, before they even reach the origin server. Workers are written in JavaScript, adhering to the service workers API, and are executed using the highly efficient Chrome V8 engine, which ensures rapid startup times and overall excellent performance.  
 By leveraging V8 isolates, which are lightweight execution environments, Workers can start up very quickly, largely eliminating the delays that can occur when a serverless function is invoked for the first time after a period of inactivity.
-Built by the language of the web, for the web (and on edge like a reverse proxy) it understands webstandards and takes advatnage of js v8 so makes sense (especially since it was born really early on in the serverless movement).
+Built by the language of the web, for the web, Battle-tested and most scrutinized engine sandbox, familiarity for webdevs (and on edge like a reverse proxy) it understands webstandards and takes advatnage of js v8 so makes sense (especially since it was born really early on in the serverless movement).
 distributed, edge-centric approach to web hosting and computation
 Fluid compute also does this now, rather than spending on idle time you are spending on actual CPU time
 they used pre-warmed instances to reduce cold starts, bytecode caching in rust :3, was made for ai
@@ -81,17 +81,36 @@ fluid compute models often support dense global compute and multi-region failove
 A central and defining concept within the fluid compute paradigm is optimized concurrency. This refers to the capability of a single function instance to handle multiple concurrent invocations simultaneously. This is a departure from the traditional serverless model where each invocation typically spins up its own isolated instance. Optimized concurrency leads to more efficient utilization of underlying compute resources and can significantly reduce idle time, especially for input/output (I/O) bound tasks that are frequently encountered in AI applications, where functions might spend a significant portion of their execution time waiting for responses from external services or data sources.
 Allowing multiple invocations to share the same underlying process requires careful consideration of potential issues related to the sharing of global state and the isolation of individual requests.
 
-I believe deno deploy also does this but unsure!
+I believe deno deploy also has a concept similar to only paying depending on CPU usage time, but unsure!
 Google Cloud Run also had this its just that vercel was the one that caught my eye
+Google Cloud Run serverless depends on the developer turning their programs into OCI-compiliant containers/Docker images to something like GCR (Google Cloud Registry) -> they get parallelized into stateless computers
+gRPC for facilitating high-performance remote procedure calls
+supposedly harder for dx and preventing cold starts, but also has scale down to zero which is nice
 
 ## Server Architecture Comparison
 
-| Feature                | Dedicated Servers                                 | Cloudflare Pages        | Cloudflare Workers           | Fluid Compute (e.g., AWS wrapper) | AWS Lambda                                   |
-| ---------------------- | ------------------------------------------------- | ----------------------- | ---------------------------- | --------------------------------- | -------------------------------------------- |
-| Cost                   | High, fixed                                       | Low, usage-based        | Low, usage-based             | Potentially low, usage-based      | Low, usage-based                             |
-| Scalability            | Limited, manual                                   | High, automatic         | High, automatic              | High, automatic, efficient        | High, automatic                              |
-| Control                | Full                                              | Limited                 | Moderate, code-level         | Moderate, code-level              | Limited, code-level                          |
-| Performance            | Excellent, consistent                             | Excellent for static    | Excellent, low latency       | Excellent, optimized              | Good, potential cold starts                  |
-| Operational Complexity | High                                              | Low                     | Moderate                     | Moderate                          | Low                                          |
-| Security               | High, user-managed                                | Mid, Cloudflare-managed | High, Cloudflare-managed     | High, provider-managed            | High, AWS-managed                            |
-| Typical Scenarios      | High-traffic, enterprise, gaming, HPC, compliance | Static sites, JAMstack  | Edge logic, APIs, middleware | AI, real-time apps, streaming     | Event-driven, data processing, microservices |
+| Feature                | Dedicated Servers                                 | Cloudflare Pages        | Cloudflare Workers           | Fluid Compute (e.g., AWS wrapper) | AWS Lambda                                   | Google Cloud Run               |
+| ---------------------- | ------------------------------------------------- | ----------------------- | ---------------------------- | --------------------------------- | -------------------------------------------- | ------------------------------ |
+| Cost                   | High, fixed                                       | Low, usage-based        | Low, usage-based             | Potentially low, usage-based      | Low, usage-based                             | Low, usage-based               |
+| Scalability            | Limited, manual                                   | High, automatic         | High, automatic              | High, automatic, efficient        | High, automatic                              | High, automatic                |
+| Control                | Full                                              | Limited                 | Moderate, code-level         | Moderate, code-level              | Limited, code-level                          | Moderate, pick your language   |
+| Performance            | Excellent, consistent                             | Excellent for static    | Excellent, low latency       | Excellent, optimized              | Good, potential cold starts                  | Good, potential cold starts    |
+| Operational Complexity | High                                              | Low                     | Moderate                     | Moderate                          | Low                                          | Low-ish (depends on container) |
+| Security               | High, user-managed                                | Mid, Cloudflare-managed | High, Cloudflare-managed     | High, provider-managed            | High, AWS-managed                            | High, provider-managed         |
+| Typical Scenarios      | High-traffic, enterprise, gaming, HPC, compliance | Static sites, JAMstack  | Edge logic, APIs, middleware | AI, real-time apps, streaming     | Event-driven, data processing, microservices | Web apps, APIs, microservices  |
+
+## Further Reading
+
+### Documentation
+
+- [AWS Lambda](https://aws.amazon.com/lambda/)
+- [Cloudflare Pages](https://developers.cloudflare.com/pages/)
+- [Cloudflare Workers](https://developers.cloudflare.com/workers/)
+- [Vercel Fluid Compute](https://vercel.com/docs/functions/fluid-compute)
+- [Google Cloud Run](https://cloud.google.com/run/docs)
+
+### Articles
+
+- [A Brief History of Hosting](https://www.icdsoft.com/blog/a-brief-history-of-hosting/) - ICDSoft
+- [The Evolution of Web Hosting](https://blog.hansoninc.com/the-evolution-of-web-hosting/) - Hanson Inc.
+- [Why Vercel Overhauled Its Serverless Infrastructure for the AI Era](https://www.runtime.news/why-vercel-overhauled-its-serverless-infrastructure-for-the-ai-era/) - Runtime News
