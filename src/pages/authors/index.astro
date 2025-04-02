@@ -6,6 +6,22 @@ import Layout from '@/layouts/Layout.astro'
 import { getAllAuthors } from '@/lib/data-utils'
 
 const authors = await getAllAuthors()
+interface Videos {
+  title: string
+  description: string
+  url: string
+  thumbnail: string
+}
+
+const videos: Videos[] = [
+  {
+    title: 'All the ways HTML gets to your browser',
+    description:
+      'Deep dive on the fastest ways to deliver HTML to browsers in 2025, covering SSR, hydration, and streaming from both frontend and backend perspectives. Essential knowledge for web developers.',
+    url: 'https://www.youtube.com/watch?v=Cifkb-ZVps4',
+    thumbnail: 'https://i.ytimg.com/vi_webp/Cifkb-ZVps4/maxresdefault.webp',
+  },
+]
 ---
 
 <Layout>
@@ -24,4 +40,42 @@ const authors = await getAllAuthors()
       <p class="text-muted-foreground text-center">No authors found.</p>
     )
   }
+  <div class="mt-8">
+    <h2 class="text-2xl font-bold">Recommended Videos</h2>
+    <p class="text-muted-foreground mb-5 text-xs italic">
+      I know I like Theo&apos;s content a lot... haha
+    </p>
+    {
+      (
+        <ul class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {videos.map((video) => (
+            <li>
+              <div class="has-[a:hover]:bg-secondary/50 overflow-hidden rounded-xl border p-4 transition-colors duration-300 ease-in-out">
+                <div class="flex flex-col gap-3">
+                  <a
+                    href={video.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="block"
+                  >
+                    <img
+                      src={video.thumbnail}
+                      alt={`Thumbnail for ${video.title}`}
+                      class="hover:ring-primary aspect-video w-full rounded-md object-cover transition-shadow duration-300 hover:cursor-pointer hover:ring-2"
+                    />
+                  </a>
+                  <div>
+                    <h3 class="font-medium">{video.title}</h3>
+                    <p class="text-muted-foreground text-sm">
+                      {video.description}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </li>
+          ))}
+        </ul>
+      )
+    }
+  </div>
 </Layout>
